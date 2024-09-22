@@ -6,4 +6,7 @@ export interface Agree {
   updt_usr_id: string;
   updt_dtm: string;
   tmcnd_plcy_cls_cd: string;
+  tmcnd_plcy_cls_nm: string;
+  tmcnd_plcy_cls_cd_nm: string;
+  
 }

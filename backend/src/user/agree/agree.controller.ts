@@ -15,7 +15,8 @@ export class AgreeController {
   @Post('search')
   findOne(@Body() body: { cust_nm: string, tmcnd_plcy_cls_cd: string }): Promise<Agree[]> {
     const { cust_nm, tmcnd_plcy_cls_cd } = body;
-    return this.agreeService.findOne(cust_nm, tmcnd_plcy_cls_cd);
+    const policyCode = tmcnd_plcy_cls_cd === 'ALL' ? '' : tmcnd_plcy_cls_cd;
+    return this.agreeService.findOne(cust_nm, policyCode);
   }
 
   @Put()

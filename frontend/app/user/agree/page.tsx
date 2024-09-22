@@ -1,12 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Switch } from "@/components/ui/switch"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } from "lucide-react"
 import { useAuth } from '../../contexts/AuthContext'
-import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
-import type { Agree } from '../../../types'; // 상대 경로로 변경
+import { Agree } from '@/types'
+
+const ITEMS_PER_PAGE = 10
 
 const policyOptions = [
+  { value: "ALL", label: "전체" },
   { value: "JOIN_TERMS_K", label: "이용약관 동의 (KOR)" },
   { value: "JOIN_TERMS_G", label: "이용약관 동의 (GLOBAL)" },
   { value: "JOIN_AGR_PRVACY_K", label: "개인정보수집 및 이용동의 (KOR)" },
@@ -33,7 +40,6 @@ export default function AgreePage() {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const { isAuthenticated } = useAuth();
-  const itemsPerPage = 10;
   const [searchName, setSearchName] = useState('');
   const [selectedPolicy, setSelectedPolicy] = useState('');
 
@@ -57,13 +63,13 @@ export default function AgreePage() {
   const fetchAgreements = async (page: number) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/user/agree?page=${page}&limit=${itemsPerPage}`);
+      const response = await fetch(`/api/user/agree?page=${page}&limit=${ITEMS_PER_PAGE}`);
       if (!response.ok) {
         throw new Error('Failed to fetch agreements');
       }
       const data = await response.json();
       setAgreements(data);
-      setTotalPages(Math.ceil(data.length / itemsPerPage));
+      setTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE));
     } catch (error) {
       console.error('Error fetching agreements:', error);
     } finally {
@@ -86,7 +92,7 @@ export default function AgreePage() {
       }
       const data = await response.json();
       setAgreements(data);
-      setTotalPages(Math.ceil(data.length / itemsPerPage));
+      setTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE));
     } catch (error) {
       console.error('Error searching agreements:', error);
     } finally {
@@ -110,22 +116,29 @@ export default function AgreePage() {
     }
   };
 
-  const pageNumbers = [];
-  const pageGroupSize = 5;
-  const currentGroup = Math.ceil(currentPage / pageGroupSize);
-  const startPage = (currentGroup - 1) * pageGroupSize + 1;
-  const endPage = Math.min(startPage + pageGroupSize - 1, totalPages);
+  const renderPageNumbers = () => {
+    const pageNumbers = [];
+    const maxPageButtons = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
+    let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
 
-  for (let i = startPage; i <= endPage; i++) {
-    pageNumbers.push(i);
-  }
+    if (endPage - startPage + 1 < maxPageButtons) {
+      startPage = Math.max(1, endPage - maxPageButtons + 1);
+    }
 
-  const handlePreviousGroup = () => {
-    setCurrentPage(Math.max(startPage - pageGroupSize, 1));
-  };
-
-  const handleNextGroup = () => {
-    setCurrentPage(Math.min(startPage + pageGroupSize, totalPages));
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(
+        <Button
+          key={i}
+          onClick={() => setCurrentPage(i)}
+          variant={currentPage === i ? "secondary" : "outline"}
+          size="sm"
+        >
+          {i}
+        </Button>
+      );
+    }
+    return pageNumbers;
   };
 
   if (!isAuthenticated) {
@@ -133,60 +146,61 @@ export default function AgreePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-4 flex space-x-4">
-        <input
-          type="text"
-          placeholder="사용자명 검색"
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">사용자 정보 수집 동의 관리</h1>
+      
+      <div className="flex flex-col md:flex-row gap-4 mb-4">
+        <Input
+          placeholder="이름으로 검색"
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
+          className="md:w-1/3"
         />
-        <select
-          value={selectedPolicy}
-          onChange={(e) => setSelectedPolicy(e.target.value)}
-          className="p-2 border border-gray-300 rounded"
-        >
-          <option value="">약관정책 선택</option>
-          {policyOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <button
-          onClick={handleSearch}
-          className="p-2 bg-blue-500 text-white rounded"
-        >
-          검색
-        </button>
+        <Select value={selectedPolicy} onValueChange={setSelectedPolicy}>
+          <SelectTrigger className="md:w-1/3">
+            <SelectValue placeholder="정책 종류 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            {policyOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button onClick={handleSearch} className="md:w-1/3">
+          <Search className="mr-2 h-4 w-4" /> 검색
+        </Button>
       </div>
+
       {isLoading ? (
         <div className="text-center">Loading...</div>
       ) : (
-        <div>
-          <table className="min-w-full bg-white">
-            <thead>
-              <tr>
-                <th className="py-2">사용자 ID</th>
-                <th className="py-2">이름</th>
-                <th className="py-2">이메일</th>
-                <th className="py-2">상태</th>
-                <th className="py-2">수정자</th>
-                <th className="py-2">수정일자</th>
-              </tr>
-            </thead>
-            <tbody>
-              {agreements.map((agree) => (
-                <tr key={agree.cust_id}>
-                  <td className="py-2">{agree.cust_id}</td>
-                  <td className="py-2">{agree.cust_nm}</td>
-                  <td className="py-2">{agree.eml}</td>
-                  <td className="py-2">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>사용자 ID</TableHead>
+                <TableHead>이름</TableHead>
+                <TableHead>이메일</TableHead>
+                <TableHead>상태</TableHead>
+                <TableHead>수정자</TableHead>
+                <TableHead>수정일자</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {agreements.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((agree: Agree) => (
+                <TableRow key={agree.cust_id}>
+                  <TableCell>{agree.cust_id}</TableCell>
+                  <TableCell>{agree.cust_nm}</TableCell>
+                  <TableCell>{agree.eml}</TableCell>
+                  <TableCell>
                     <Switch
                       checked={agree.agre_yn === 'Y'}
                       onChange={() => handleToggle(agree.cust_nm, agree.tmcnd_plcy_cls_cd, agree.agre_yn)}
-                      className={`${agree.agre_yn === 'Y' ? 'bg-green-500' : 'bg-red-500'} relative inline-flex h-6 w-11 items-center rounded-full`}
+                      className={`${
+                        agree.agre_yn === 'Y' ? 'bg-green-500' : 'bg-red-500'
+                      } relative inline-flex h-6 w-11 items-center rounded-full`}
                     >
                       <span className="sr-only">Toggle Agreement</span>
                       <span
@@ -195,56 +209,54 @@ export default function AgreePage() {
                         } inline-block h-4 w-4 transform rounded-full bg-white transition`}
                       />
                     </Switch>
-                  </td>
-                  <td className="py-2">{agree.updt_usr_id}</td>
-                  <td className="py-2">{new Date(agree.updt_dtm).toLocaleDateString()}</td>
-                </tr>
+                  </TableCell>
+                  <TableCell>{agree.updt_usr_id}</TableCell>
+                  <TableCell>{new Date(agree.updt_dtm).toLocaleDateString()}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
 
           <div className="mt-8 flex justify-center items-center space-x-2">
-            <button
-              onClick={handlePreviousGroup}
-              disabled={startPage === 1}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-            >
-              <ChevronsLeftIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            <Button
+              onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+              size="sm"
+              variant="outline"
             >
-              <ChevronLeftIcon className="w-5 h-5" />
-            </button>
+              <ChevronsLeft className="h-4 w-4" />
+              처음
+            </Button>
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 5, 1))}
+              disabled={currentPage === 1}
+              size="sm"
+              variant="outline"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              이전
+            </Button>
 
-            {pageNumbers.map((number) => (
-              <button
-                key={number}
-                onClick={() => setCurrentPage(number)}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === number ? 'bg-primary text-white' : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                {number}
-              </button>
-            ))}
+            {renderPageNumbers()}
 
-            <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 5, totalPages))}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+              size="sm"
+              variant="outline"
             >
-              <ChevronRightIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleNextGroup}
-              disabled={endPage === totalPages}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+              다음
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              size="sm"
+              variant="outline"
             >
-              <ChevronsRightIcon className="w-5 h-5" />
-            </button>
+              마지막
+              <ChevronsRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       )}

@@ -21,7 +21,7 @@ export default function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [progress, setProgress] = useState(0) // Progress 상태 추가
+  const [progress, setProgress] = useState(0)
   const { isAuthenticated } = useAuth()
   const postsPerPage = 8
 
@@ -31,9 +31,8 @@ export default function BlogPage() {
 
   const fetchPosts = async (page: number) => {
     setIsLoading(true)
-    setProgress(0) // Progress 초기화
+    setProgress(0)
     try {
-      // Simulate API call with progress
       for (let i = 0; i <= 100; i += 10) {
         setProgress(i)
         await new Promise(resolve => setTimeout(resolve, 200))
@@ -109,13 +108,12 @@ export default function BlogPage() {
                   <h2 className="text-xl font-semibold mb-2">{post.titl}</h2>
                   <p className="text-gray-600">{post.contt}</p>
                   <div className="flex gap-2 mt-2">
-                    {post.tag.split(',').map((tag, index) => (
+                    {post.tag ? post.tag.split(',').map((tag, index) => (
                       <Badge key={index} variant="secondary">{tag}</Badge>
-                    ))}
+                    )) : null}
                   </div>
                   <p className="text-sm text-gray-500 mt-2">Date: {new Date(post.inpt_dtm).toLocaleDateString()}</p>
                   <a href={`/blog/${post.bltn_no}`} className="text-primary hover:underline mt-2 inline-flex items-center">
-                    {/* <span>편집</span> */}
                     <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 20h9M16.5 3.5l4 4L7 21H3v-4L16.5 3.5z"></path>
                     </svg>
