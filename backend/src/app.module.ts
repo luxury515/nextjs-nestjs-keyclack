@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { BlogModule } from './blog/blog.module';
+import { AgreeModule } from 'user/agree/agree.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BlogModule } from './blog/blog.module';
     HttpModule,
     AuthModule,
     BlogModule,
+    AgreeModule,
   ],
   controllers: [AuthController],
 })
