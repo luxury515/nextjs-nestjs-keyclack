@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import { useAuth } from '../../contexts/AuthContext'
 import 'react-quill/dist/quill.snow.css'
 import TagInput from '@/components/TagInput'
-import { PublishSwitchComponent } from '@/components/publish-switch'
+import { Switch } from '@/components/ui/switch'
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 
@@ -108,13 +108,20 @@ export default function CreateBlogPage() {
         </div>
         
         <div className="mt-20 mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="tags">
-            Tags
-          </label>
-          <TagInput tags={tags} setTags={setTags} />
+          <div className="flex flex-wrap">  
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="tags">
+              Tags
+            </label>
+            <TagInput tags={tags} setTags={setTags} />
+          </div>
         </div>
         <div className="mb-4">
-          <PublishSwitchComponent isPublished={isPublished} setIsPublished={setIsPublished} />
+          <div className="flex items-center">
+            <label className="block text-gray-700 text-sm font-bold mb-2 mr-2" htmlFor="isPublished">
+              게시여부
+            </label>
+            <Switch checked={isPublished} onCheckedChange={setIsPublished} />
+          </div>
         </div>
         <div className="flex items-center justify-between">
           <button

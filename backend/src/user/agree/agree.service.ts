@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Agree } from './agree.entity';
+import { Like } from 'typeorm';
 
 @Injectable()
 export class AgreeService {
@@ -15,8 +16,16 @@ export class AgreeService {
   }
 
   async findOne(cust_nm: string, tmcnd_plcy_cls_cd: string): Promise<Agree[]> {
+    const whereCondition = {};
+    if (cust_nm) {
+      whereCondition['cust_nm'] = Like(`%${cust_nm}%`);
+    }
+    if (tmcnd_plcy_cls_cd) {
+      whereCondition['tmcnd_plcy_cls_cd'] = tmcnd_plcy_cls_cd;
+    }
+
     return this.agreeRepository.find({
-      where: { cust_nm, tmcnd_plcy_cls_cd },
+      where: whereCondition,
     });
   }
 
