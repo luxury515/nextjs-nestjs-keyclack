@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
@@ -38,66 +38,48 @@ export default function AgreePage() {
   const [agreements, setAgreements] = useState<Agree[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { isAuthenticated } = useAuth();
   const [searchName, setSearchName] = useState('');
   const [selectedPolicy, setSelectedPolicy] = useState('');
+  const [searchParams, setSearchParams] = useState({ cust_nm: '', tmcnd_plcy_cls_cd: '' });
 
-  useEffect(() => {
-    fetchAgreements(currentPage);
-  }, [currentPage]);
-
-  useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        handleSearch();
-      }
-    };
-
-    window.addEventListener('keypress', handleKeyPress);
-    return () => {
-      window.removeEventListener('keypress', handleKeyPress);
-    };
-  }, [searchName, selectedPolicy]);
-
-  const fetchAgreements = async (page: number) => {
+  const handleSearch = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/user/agree?page=${page}&limit=${ITEMS_PER_PAGE}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch agreements');
-      }
-      const data = await response.json();
-      setAgreements(data);
-      setTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE));
-    } catch (error) {
-      console.error('Error fetching agreements:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSearch = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/user/agree/search', {
+      const response = await fetch(`/api/user/agree/search?pageSize=${ITEMS_PER_PAGE}&page=${currentPage}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ cust_nm: searchName, tmcnd_plcy_cls_cd: selectedPolicy }),
+        body: JSON.stringify(searchParams),
       });
       if (!response.ok) {
         throw new Error('Failed to search agreements');
       }
-      const data = await response.json();
+      const { data, total } = await response.json();
       setAgreements(data);
-      setTotalPages(Math.ceil(data.length / ITEMS_PER_PAGE));
+      setTotalPages(Math.ceil(total / ITEMS_PER_PAGE));
     } catch (error) {
       console.error('Error searching agreements:', error);
     } finally {
       setIsLoading(false);
     }
+  }, [currentPage, searchParams]);
+
+  useEffect(() => {
+    handleSearch();
+  }, [handleSearch]);
+
+  const handlePolicyChange = (value: string) => {
+    setSelectedPolicy(value);
+    setCurrentPage(1);
+    setSearchParams(prev => ({ ...prev, tmcnd_plcy_cls_cd: value }));
+  };
+
+  const handleSearchClick = () => {
+    setCurrentPage(1);
+    setSearchParams({ cust_nm: searchName, tmcnd_plcy_cls_cd: selectedPolicy });
   };
 
   const handleToggle = async (cust_nm: string, tmcnd_plcy_cls_cd: string, currentStatus: string) => {
@@ -110,11 +92,24 @@ export default function AgreePage() {
         },
         body: JSON.stringify({ cust_nm, tmcnd_plcy_cls_cd, agre_yn: newStatus === 'Y' }),
       });
-      fetchAgreements(currentPage);
+      handleSearch();
     } catch (error) {
       console.error('Error updating agreement:', error);
     }
   };
+
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        handleSearchClick();
+      }
+    };
+  
+    window.addEventListener('keypress', handleKeyPress);
+    return () => {
+      window.removeEventListener('keypress', handleKeyPress);
+    };
+  }, []);
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
@@ -156,9 +151,9 @@ export default function AgreePage() {
           onChange={(e) => setSearchName(e.target.value)}
           className="md:w-1/3"
         />
-        <Select value={selectedPolicy} onValueChange={setSelectedPolicy}>
+        <Select value={selectedPolicy} onValueChange={handlePolicyChange}>
           <SelectTrigger className="md:w-1/3">
-            <SelectValue placeholder="정책 종류 선택" />
+            <SelectValue placeholder="선택" />
           </SelectTrigger>
           <SelectContent>
             {policyOptions.map((option) => (
@@ -168,7 +163,7 @@ export default function AgreePage() {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={handleSearch} className="md:w-1/3">
+        <Button onClick={handleSearchClick} className="md:w-1/3">
           <Search className="mr-2 h-4 w-4" /> 검색
         </Button>
       </div>
@@ -189,7 +184,7 @@ export default function AgreePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {agreements.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((agree: Agree) => (
+              {agreements.map((agree: Agree) => (
                 <TableRow key={agree.cust_id}>
                   <TableCell>{agree.cust_id}</TableCell>
                   <TableCell>{agree.cust_nm}</TableCell>

@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, Post } from '@nestjs/common';
+import { Controller, Post, Body, Query, Put } from '@nestjs/common';
 import { AgreeService } from './agree.service';
 import { Agree } from './agree.entity';
 import { UpdateAgreeDto } from './agree.dto';
@@ -7,16 +7,19 @@ import { UpdateAgreeDto } from './agree.dto';
 export class AgreeController {
   constructor(private readonly agreeService: AgreeService) {}
 
-  @Get()
-  findAll(): Promise<Agree[]> {
-    return this.agreeService.findAll();
-  }
-
   @Post('search')
-  findOne(@Body() body: { cust_nm: string, tmcnd_plcy_cls_cd: string }): Promise<Agree[]> {
+  async search(
+    @Body() body: { cust_nm: string; tmcnd_plcy_cls_cd: string },
+    @Query('pageSize') pageSize: number = 10,
+    @Query('page') page: number = 1
+  ): Promise<{ data: Agree[]; total: number }> {
     const { cust_nm, tmcnd_plcy_cls_cd } = body;
     const policyCode = tmcnd_plcy_cls_cd === 'ALL' ? '' : tmcnd_plcy_cls_cd;
-    return this.agreeService.findOne(cust_nm, policyCode);
+    
+    const skip = (page - 1) * pageSize;
+    const [data, total] = await this.agreeService.search(cust_nm, policyCode, skip, pageSize);
+    
+    return { data, total };
   }
 
   @Put()
