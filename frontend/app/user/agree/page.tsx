@@ -67,20 +67,22 @@ export default function AgreePage() {
     }
   }, [currentPage, searchParams]);
 
-  useEffect(() => {
-    handleSearch();
-  }, [handleSearch]);
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setSearchName(newName);
+    setSearchParams(prev => ({ ...prev, cust_nm: newName }));
+  };
 
   const handlePolicyChange = (value: string) => {
     setSelectedPolicy(value);
-    setCurrentPage(1);
     setSearchParams(prev => ({ ...prev, tmcnd_plcy_cls_cd: value }));
   };
 
-  const handleSearchClick = () => {
-    setCurrentPage(1);
-    setSearchParams({ cust_nm: searchName, tmcnd_plcy_cls_cd: selectedPolicy });
-  };
+  const handleKeyPress = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleSearch();
+    }
+  }, [handleSearch]);
 
   const handleToggle = async (cust_nm: string, tmcnd_plcy_cls_cd: string, currentStatus: string) => {
     const newStatus = currentStatus === 'Y' ? 'N' : 'Y';
@@ -99,17 +101,8 @@ export default function AgreePage() {
   };
 
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key === 'Enter') {
-        handleSearchClick();
-      }
-    };
-  
-    window.addEventListener('keypress', handleKeyPress);
-    return () => {
-      window.removeEventListener('keypress', handleKeyPress);
-    };
-  }, []);
+    handleSearch();
+  }, [handleSearch]);
 
   const renderPageNumbers = () => {
     const pageNumbers = [];
@@ -148,7 +141,8 @@ export default function AgreePage() {
         <Input
           placeholder="이름으로 검색"
           value={searchName}
-          onChange={(e) => setSearchName(e.target.value)}
+          onChange={handleNameChange}
+          onKeyPress={handleKeyPress}
           className="md:w-1/3"
         />
         <Select value={selectedPolicy} onValueChange={handlePolicyChange}>
@@ -163,7 +157,7 @@ export default function AgreePage() {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={handleSearchClick} className="md:w-1/3">
+        <Button onClick={handleSearch} className="md:w-1/3">
           <Search className="mr-2 h-4 w-4" /> 검색
         </Button>
       </div>
