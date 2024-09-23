@@ -26,7 +26,7 @@ export default function BlogPostPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [tags, setTags] = useState<string[]>([])
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, accessToken } = useAuth()
   const params = useParams()
   const id = params.id as string
 
@@ -68,6 +68,7 @@ export default function BlogPostPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
         },
         body: JSON.stringify({ ...post, tag: tags.join(',') }),
       })

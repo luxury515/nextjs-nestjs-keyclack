@@ -87,7 +87,24 @@ export class BlogService {
     }
   }
 
-  async update(id: string, updateBlogDto: UpdateBlogDto): Promise<Blog> {
+  async update(id: string, updateBlogDto: UpdateBlogDto, token: string): Promise<Blog> {
+    const tokenPayload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    const userId = tokenPayload.preferred_username;
+    const user = await this.blogRepository.manager.query(`
+      SELECT ogdp_co_id FROM tmdm_sysusr_m WHERE usr_id = $1
+    `, [userId]);
+
+    if (!user.length) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    const ogdpCoId = user[0].ogdp_co_id;
+
+    const queryRunner = this.blogRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
     const blog = await this.blogRepository.findOne({ where: { bltn_no: id } });
     if (!blog) {
       throw new NotFoundException(`Blog with ID ${id} not found`);
@@ -97,9 +114,16 @@ export class BlogService {
     blog.titl = updateBlogDto.titl;
     blog.contt = updateBlogDto.contt;
     blog.tag = updateBlogDto.tag;
-    blog.updt_usr_id = updateBlogDto.updt_usr_id;
+    // blog.updt_usr_id = updateBlogDto.updt_usr_id;
+    blog.updt_usr_id = ogdpCoId;
     blog.thumbnail_img_url = updateBlogDto.thumbnail_img_url;
 
-    return this.blogRepository.save(blog);
+      return this.blogRepository.save(blog);
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }
