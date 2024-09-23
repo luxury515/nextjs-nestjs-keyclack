@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { Button } from "@/components/ui/button"
-import TagInput from '@/components/TagInput'
+import TagInput from '@/components/ui/TagInput'
 
 // 동적 import로 ReactQuill을 불러옵니다.
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })

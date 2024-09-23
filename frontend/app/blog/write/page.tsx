@@ -4,7 +4,7 @@ import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useAuth } from '../../contexts/AuthContext'
 import 'react-quill/dist/quill.snow.css'
-import TagInput from '@/components/TagInput'
+import TagInput from '@/components/ui/TagInput'
 import { Switch } from '@/components/ui/switch'
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })

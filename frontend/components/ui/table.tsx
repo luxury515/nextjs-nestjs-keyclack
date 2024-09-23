@@ -6,12 +6,22 @@ const Table = React.forwardRef<
   HTMLTableElement,
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
+  <div className="relative w-full h-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
+      className={cn("w-full h-full caption-bottom text-sm", className)}
       {...props}
-    />
+    >
+      {/* <thead>
+        <tr>
+          <th>Header 1</th>
+          <th>Header 2</th>
+        </tr>
+      </thead> */}
+      <tbody>
+        {props.children}
+      </tbody>
+    </table>
   </div>
 ))
 Table.displayName = "Table"
@@ -30,7 +40,7 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("[&_tr:last-child]:border-0", className)}
+    className={cn("h-full w-full [&_tr:last-child]:border-0", className)} // Add h-full and w-full to tbody
     {...props}
   />
 ))

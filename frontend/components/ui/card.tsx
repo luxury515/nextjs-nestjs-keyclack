@@ -36,8 +36,11 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn("font-semibold leading-none tracking-tight", className)}
-    {...props}
-  />
+    aria-label={props.children ? undefined : "Card Title"}
+  >
+    {props.children || <span className="sr-only">Card Title</span>}
+    {/* Ensure default content is screen reader accessible */}
+  </h3>
 ))
 CardTitle.displayName = "CardTitle"
 
