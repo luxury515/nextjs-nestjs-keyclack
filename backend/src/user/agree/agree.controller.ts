@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Query, Body, Post } from '@nestjs/common';
+import { Controller, Get, Put, Body, Post } from '@nestjs/common';
 import { AgreeService } from './agree.service';
 import { Agree } from './agree.entity';
 import { UpdateAgreeDto } from './agree.dto';

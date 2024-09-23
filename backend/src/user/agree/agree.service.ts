@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository ,Like } from 'typeorm';
 import { Agree } from './agree.entity';
-import { Like } from 'typeorm';
-
 @Injectable()
 export class AgreeService {
   constructor(
