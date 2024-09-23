@@ -97,7 +97,14 @@ export function CmsNavigation({ children }: { readonly children: React.ReactNode
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-avatar.jpg" alt="User avatar" />
+                <AvatarImage 
+                  src="/placeholder-avatar.jpg" 
+                  alt="User avatar" 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<div class="default-avatar flex items-center justify-center w-full h-full bg-gray-300 rounded-full"></div>');
+                  }}
+                />
                 <AvatarFallback>JD</AvatarFallback>
               </Avatar>
             </Button>
