@@ -43,8 +43,8 @@ const loadMenuStateFromURL = () => {
   }
   const params = new URLSearchParams(window.location.search);
   return {
-    activeTopMenu: params.get("headerMenu") || "dashboard",
-    expandedMenu: params.get("sideMenu") || null,
+    activeTopMenu: params.get("headerMenu") ?? "dashboard",
+    expandedMenu: params.get("sideMenu") ?? null,
   };
 };
 
@@ -58,7 +58,7 @@ const saveMenuStateToURL = (
   }
   const params = new URLSearchParams(window.location.search);
   params.set("headerMenu", activeTopMenu);
-  params.set("sideMenu", expandedMenu || "");
+  params.set("sideMenu", expandedMenu ?? "");
   window.history.replaceState({}, "", `${window.location.pathname}?${params}`);
 };
 

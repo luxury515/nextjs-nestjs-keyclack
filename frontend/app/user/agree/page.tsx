@@ -142,7 +142,7 @@ export default function AgreePage() {
           placeholder="이름으로 검색"
           value={searchName}
           onChange={handleNameChange}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress} // 수정된 부분
           className="md:w-1/3"
         />
         <Select value={selectedPolicy} onValueChange={handlePolicyChange}>

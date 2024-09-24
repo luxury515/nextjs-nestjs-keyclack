@@ -75,7 +75,7 @@ export function CmsNavigation({
   const handleSubMenuClick = (link: string) => {
     const params = new URLSearchParams(window.location.search);
     params.set('headerMenu', activeTopMenu);
-    params.set('sideMenu', expandedMenu || '');
+    params.set('sideMenu', expandedMenu ?? '');
     router.push(`${link}?${params.toString()}`);
   };
 
