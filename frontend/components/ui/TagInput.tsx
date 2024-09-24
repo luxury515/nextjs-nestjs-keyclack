@@ -1,68 +1,83 @@
-import React, { useState, useRef, KeyboardEvent } from 'react';
+import React, { useState, KeyboardEvent, useRef } from 'react'
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { X } from "lucide-react"
 
 interface TagInputProps {
-  tags: string[];
-  setTags: (tags: string[]) => void;
+  tags: string[]
+  setTags: React.Dispatch<React.SetStateAction<string[]>>
+  className?: string
+  placeholder?: string
 }
 
-const TagInput: React.FC<TagInputProps> = ({ tags, setTags }) => {
-  const [inputValue, setInputValue] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const composingRef = useRef<boolean>(false);
+const TagInput: React.FC<TagInputProps> = ({ 
+  tags, 
+  setTags, 
+  className = '', 
+  placeholder = '태그를 입력하고 Enter를 누르세요' 
+}) => {
+  const [input, setInput] = useState('')
+  const composingRef = useRef(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
-  };
+    setInput(e.target.value)
+  }
 
   const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Tab' && inputValue.trim() !== '' && !composingRef.current) {
-      e.preventDefault();
-      addTag(inputValue.trim());
+    if (e.key === 'Enter' && input && !composingRef.current) {
+      e.preventDefault()
+      addTag(input)
     }
-  };
+  }
 
   const handleCompositionStart = () => {
-    composingRef.current = true;
-  };
+    composingRef.current = true
+  }
 
   const handleCompositionEnd = () => {
-    composingRef.current = false;
-  };
+    composingRef.current = false
+  }
 
   const addTag = (tag: string) => {
-    setTags([...tags, tag]);
-    setInputValue('');
-  };
+    if (tag.trim() !== '' && !tags.includes(tag.trim())) {
+      setTags([...tags, tag.trim()])
+      setInput('')
+    }
+  }
 
   const removeTag = (indexToRemove: number) => {
-    setTags(tags.filter((_, index) => index !== indexToRemove));
-  };
+    setTags(tags.filter((_, index) => index !== indexToRemove))
+  }
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className={`w-full ${className}`}>
       <div className="flex flex-wrap gap-2 mb-2">
         {tags.map((tag, index) => (
           <span key={index} className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center">
             {tag}
-            <button onClick={() => removeTag(index)} className="ml-1 text-blue-600 hover:text-blue-800">
-              &times;
-            </button>
+            <Button
+              onClick={() => removeTag(index)}
+              variant="ghost"
+              size="sm"
+              className="ml-1 text-blue-600 hover:text-blue-800 p-0"
+            >
+              <X size={14} />
+            </Button>
           </span>
         ))}
       </div>
-      <input
-        ref={inputRef}
+      <Input
         type="text"
-        value={inputValue}
+        value={input}
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
-        placeholder="태그를 입력하고 Tab을 누르세요"
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder={placeholder}
+        className="w-full"
       />
     </div>
-  );
-};
+  )
+}
 
-export default TagInput;
+export default TagInput
