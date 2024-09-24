@@ -5,8 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon, ChevronsLeftIcon, ChevronsRightIcon 
 import { useAuth } from '../contexts/AuthContext'
 import Image from 'next/image'
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress' // Progress 컴포넌트 임포트
-import { Badge } from '@/components/ui/badge' // Badge 컴포넌트 임포트
+import { Badge } from '@/components/ui/badge'
 
 interface BlogPost {
   bltn_no: string;
@@ -16,12 +15,12 @@ interface BlogPost {
   tag: string;
   inpt_dtm: string;
 }
+
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
-  const [progress, setProgress] = useState(0)
   const { isAuthenticated } = useAuth()
   const postsPerPage = 8
 
@@ -31,13 +30,7 @@ export default function BlogPage() {
 
   const fetchPosts = async (page: number) => {
     setIsLoading(true)
-    setProgress(0)
     try {
-      for (let i = 0; i <= 100; i += 10) {
-        setProgress(i)
-        await new Promise(resolve => setTimeout(resolve, 200))
-      }
-
       const response = await fetch(`/api/blog?page=${page}&limit=${postsPerPage}`)
       if (!response.ok) {
         throw new Error('Failed to fetch posts')
@@ -78,8 +71,7 @@ export default function BlogPage() {
     <div className="container mx-auto px-4 py-8">
       {isLoading ? (
         <div className="space-y-4">
-          <Progress value={progress} className="w-full" />
-          <p className="text-center">로딩 중... {progress}%</p>
+          <p className="text-center">로딩 중...</p>
         </div>
       ) : (
         <div className="show-content">
