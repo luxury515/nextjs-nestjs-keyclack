@@ -1,13 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import dynamic from 'next/dynamic'
+import { useState, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import 'react-quill/dist/quill.snow.css'
 import TagInput from '@/components/ui/TagInput'
 import { Switch } from '@/components/ui/switch'
-
-const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
+import { JoditEditor } from '@/components/jodit-editor'
 
 export default function CreateBlogPage() {
   const [title, setTitle] = useState('')
@@ -16,6 +13,12 @@ export default function CreateBlogPage() {
   const [tags, setTags] = useState<string[]>([])
   const [isPublished, setIsPublished] = useState(false)
   const { accessToken } = useAuth()
+  const editorRef = useRef(null)
+
+  const handleSave = () => {
+    console.log('Saved content:', content)
+    // Here you would typically send the content to your backend
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -40,31 +43,6 @@ export default function CreateBlogPage() {
       console.error('Failed to create blog post')
     }
   }
-
-  const modules = {
-    toolbar: [
-      [{ 'font': [] }, { 'size': [] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'script': 'sub' }, { 'script': 'super' }],
-      [{ 'header': '1' }, { 'header': '2' }, 'blockquote', 'code-block'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
-      [{ 'direction': 'rtl' }, { 'align': [] }],
-      ['link', 'image', 'video'],
-      ['clean']
-    ]
-  };
-
-  const formats = [
-    'font', 'size',
-    'bold', 'italic', 'underline', 'strike',
-    'color', 'background',
-    'script',
-    'header', 'blockquote', 'code-block',
-    'list', 'bullet', 'indent',
-    'direction', 'align',
-    'link', 'image', 'video'
-  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -98,15 +76,12 @@ export default function CreateBlogPage() {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="content">
             Content
           </label>
-          <ReactQuill 
-            value={content} 
-            onChange={setContent} 
-            modules={modules} 
-            formats={formats} 
-            style={{ height: '10rem' }}
+          <JoditEditor 
+            ref={editorRef}
+            onBlur={(newContent: string) => setContent(newContent)} 
+            handleSave={handleSave}
           />
         </div>
-        
         <div className="mt-20 mb-4">
           <div className="flex flex-wrap">  
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="tags">
