@@ -90,7 +90,7 @@ export default function BlogPage() {
                   ) : (
                     <div 
                       className="w-full h-48 bg-gray-300 flex items-center justify-center"
-                      style={{ backgroundImage: 'url(/placeholder.svg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
+                      style={{ backgroundImage: 'url(/blog-default-baner.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}
                     >
                       <span className="text-white text-2xl">기본 이미지</span>
                     </div>

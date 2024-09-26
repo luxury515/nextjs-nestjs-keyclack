@@ -5,6 +5,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import TagInput from '@/components/ui/TagInput'
 import { Switch } from '@/components/ui/switch'
 import { JoditEditor } from '@/components/jodit-editor'
+import { ImageUploaderComponent } from '@/components/ImageUploader'
 
 export default function CreateBlogPage() {
   const [title, setTitle] = useState('')
@@ -17,7 +18,10 @@ export default function CreateBlogPage() {
 
   const handleSave = () => {
     console.log('Saved content:', content)
-    // Here you would typically send the content to your backend
+  }
+
+  const handleImageUpload = (imageUrl: string) => {
+    setThumbnailUrl(imageUrl)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +86,7 @@ export default function CreateBlogPage() {
             handleSave={handleSave}
           />
         </div>
-        <div className="mt-20 mb-4">
+        <div className="mt-4 mb-4">
           <div className="flex flex-wrap">  
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="tags">
               Tags
@@ -90,6 +94,7 @@ export default function CreateBlogPage() {
             <TagInput tags={tags} setTags={setTags} />
           </div>
         </div>
+        <ImageUploaderComponent onImageUpload={handleImageUpload} />
         <div className="mb-4">
           <div className="flex items-center">
             <label className="block text-gray-700 text-sm font-bold mb-2 mr-2" htmlFor="isPublished">

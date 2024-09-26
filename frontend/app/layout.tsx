@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata } from "next/types"; // 수정된 부분
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from '../app/contexts/AuthContext';
