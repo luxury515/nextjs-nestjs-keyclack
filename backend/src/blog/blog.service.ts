@@ -13,7 +13,7 @@ export class BlogService {
 
   async findAll(page: number = 1, limit: number = 10): Promise<{ blogs: Blog[], total: number }> {
     const [blogs, total] = await this.blogRepository.findAndCount({
-      where: { bltn_cls_cd: 'BLOG' },
+      where: { bltn_cls_cd: 'BLOG', del_yn: 'N' },
       select: ['bltn_no', 'titl', 'contt', 'tag', 'inpt_dtm', 'thumbnail_img_url'],
       skip: (page - 1) * limit,
       take: limit,
@@ -131,10 +131,11 @@ export class BlogService {
 
     try {
       const blog = await this.blogRepository.findOne({ where: { bltn_no: id } });
+      console.log("delete blog----->",blog);
       if (!blog) {
         throw new NotFoundException(`Blog with ID ${id} not found`);
       }
-      await queryRunner.manager.update(Blog, { bltn_no: id }, { del_yn: 'Y' });
+      await queryRunner.manager.update(Blog, { bltn_no: id }, { del_yn: 'Y'});
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();

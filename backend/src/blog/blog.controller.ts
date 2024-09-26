@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Body, Param, Query, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, Query, Headers, Delete } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { Blog } from './blog.entity';
 import { UpdateBlogDto } from './blog.dto';
@@ -29,8 +29,9 @@ export class BlogController {
     const token = authHeader.split(' ')[1];
     return this.blogService.update(id, blogData, token);
   }
-  @Put(':id')
+  @Delete(':id')
   async delete(@Param('id') id: string, @Headers('Authorization') authHeader: string) {
+    console.log("delete blog id----->",id);
     const token = authHeader.split(' ')[1];
     return this.blogService.delete(id, token);
   }
