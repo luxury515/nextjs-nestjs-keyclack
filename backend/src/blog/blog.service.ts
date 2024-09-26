@@ -118,4 +118,29 @@ export class BlogService {
       await queryRunner.release();
     }
   }
+
+  async delete(id: string, token: string): Promise<void> {
+    const tokenPayload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    const userId = tokenPayload.preferred_username;
+    if (!userId) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+    const queryRunner = this.blogRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const blog = await this.blogRepository.findOne({ where: { bltn_no: id } });
+      if (!blog) {
+        throw new NotFoundException(`Blog with ID ${id} not found`);
+      }
+      await queryRunner.manager.update(Blog, { bltn_no: id }, { del_yn: 'Y' });
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }

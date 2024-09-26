@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Body, Param, Query, Headers } from '@nestjs
 import { BlogService } from './blog.service';
 import { Blog } from './blog.entity';
 import { UpdateBlogDto } from './blog.dto';
+import { publicDecrypt } from 'crypto';
 
 @Controller('blog')
 export class BlogController {
@@ -27,5 +28,10 @@ export class BlogController {
   async update(@Param('id') id: string, @Body() blogData: UpdateBlogDto, @Headers('Authorization') authHeader: string) {
     const token = authHeader.split(' ')[1];
     return this.blogService.update(id, blogData, token);
+  }
+  @Put(':id')
+  async delete(@Param('id') id: string, @Headers('Authorization') authHeader: string) {
+    const token = authHeader.split(' ')[1];
+    return this.blogService.delete(id, token);
   }
 }

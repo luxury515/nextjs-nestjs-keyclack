@@ -18,6 +18,9 @@ export class Blog {
   pstg_yn: string; // 게시 여부
 
   @Column()
+  atch_file_no: string;
+
+  @Column()
   titl: string;
 
   @Column()
@@ -40,4 +43,7 @@ export class Blog {
 
   @Column()
   thumbnail_img_url: string;
+
+  @Column()
+  del_yn: string;
 }

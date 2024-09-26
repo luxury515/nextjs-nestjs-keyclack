@@ -111,7 +111,7 @@ export function CmsNavigation({
                 <AvatarImage
                   src="/placeholder-avatar.jpg"
                   alt="User avatar"
-                  onError={(e) => {
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.parentElement?.insertAdjacentHTML(
                       'beforeend',
