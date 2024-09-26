@@ -1,17 +1,30 @@
 "use client";
 
-import { useState, forwardRef, useCallback } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, forwardRef, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Jodit } from "jodit-react";
+import type { Jodit } from "jodit-react";
 
 const DynamicJoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
+
 interface JoditEditorProps {
-  handleSave: (content: string) => void;
+  onChange: (content: string) => void;
+  initialValue?: string;
 }
+
 export const JoditEditor = forwardRef<Jodit, JoditEditorProps>(
-  ({ handleSave }, ref) => {
-    const [content, setContent] = useState("");
+  ({ onChange, initialValue = "" }, ref) => {
+    const [content, setContent] = useState(initialValue);
+    const [editor, setEditor] = useState<Jodit | null>(null);
+
+    useEffect(() => {
+      if (editor) {
+        editor.events.on('change', () => {
+          const newContent = editor.value;
+          setContent(newContent);
+          onChange(newContent);
+        });
+      }
+    }, [editor, onChange]);
 
     const config = {
       readonly: false,
@@ -120,21 +133,29 @@ export const JoditEditor = forwardRef<Jodit, JoditEditorProps>(
         },
       },
       removeButtons: ["file", "update"],
+      enableDragAndDropFileToEditor: true,
+      showPlaceholder: false,
+      useSearch: false,
+      enter: 'P',
     };
-    const handleChange = useCallback((newContent: string) => {
-      setContent(newContent);
-    }, []);
+
     return (
       <div className="container mx-auto">
         <DynamicJoditEditor
-          ref={ref}
+          ref={(newEditor) => {
+            if (ref) {
+              if (typeof ref === 'function') {
+                ref(newEditor);
+              } else {
+                ref.current = newEditor;
+              }
+            }
+            setEditor(newEditor);
+          }}
           value={content}
           config={config}
-          onBlur={handleChange}
+          onBlur={(newContent) => onChange(newContent)}
         />
-        <Button className="mt-4" onClick={handleSave}>
-          저장
-        </Button>
       </div>
     );
   }

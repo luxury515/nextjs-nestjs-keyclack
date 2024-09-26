@@ -16,10 +16,6 @@ export default function CreateBlogPage() {
   const { accessToken } = useAuth()
   const editorRef = useRef(null)
 
-  const handleSave = () => {
-    console.log('Saved content:', content)
-  }
-
   const handleImageUpload = (imageUrl: string) => {
     setThumbnailUrl(imageUrl)
   }
@@ -82,8 +78,7 @@ export default function CreateBlogPage() {
           </label>
           <JoditEditor 
             ref={editorRef}
-            onBlur={(newContent: string) => setContent(newContent)} 
-            handleSave={handleSave}
+            onChange={(newContent: string) => setContent(newContent)}
           />
         </div>
         <div className="mt-4 mb-4">
