@@ -23,24 +23,24 @@ import { useAuth } from '@/app/contexts/AuthContext'
 const ITEMS_PER_PAGE = 10;
 
 const memberClassTypes = [
-  { id: "all", label: "전체" },
-  { id: "reguler", label: "정회원" },
-  { id: "master", label: "마스터" },
+  { id: "ALL", label: "전체" },
+  { id: "REGULAR", label: "정회원" },
+  { id: "MASTER", label: "마스터" },
 ];
 
 const memberTypes = [
-  { id: "all", label: "전체" },
-  { id: "associate", label: "준회원" },
-  { id: "web", label: "정회원(웹)" },
-  { id: "contract", label: "정회원(계약)" },
+  { id: "ALL", label: "전체" },
+  { id: "ASSOCIATE", label: "준회원" },
+  { id: "WEB", label: "정회원(웹)" },
+  { id: "CONTRACT", label: "정회원(계약)" },
 ];
 
 const statusTypes = [
-  { id: "all", label: "전체" },
-  { id: "normal", label: "정상" },
-  { id: "tobe_inactive", label: "휴면예정" },
-  { id: "inactive", label: "휴면" },
-  { id: "suspended", label: "정지" },
+  { id: "ALL", label: "전체" },
+  { id: "NORMAL", label: "정상" },
+  { id: "TOBE_INACTIVE", label: "휴면예정" },
+  { id: "INACTIVE", label: "휴면" },
+  { id: "SUSPENDED", label: "정지" },
 ];
 
 // UserInfo 타입을 서버 응답에 맞게 수정
@@ -52,6 +52,7 @@ interface UserInfo {
   hp: string;
   join_typ_cd: string;
   join_ymd: string;
+  eml: string;
 }
 
 export default function UserInfoPage() {
@@ -65,15 +66,36 @@ export default function UserInfoPage() {
     cust_nm: '',
     hp: '',
   });
-  const [selectedMemberClassTypes, setSelectedMemberClassTypes] = useState([
-    "all",
-  ]);
-  const [selectedMemberTypes, setSelectedMemberTypes] = useState(["all"]);
-  const [selectedStatusTypes, setSelectedStatusTypes] = useState(["all"]);
-  const [selectedJoinTypes, setSelectedJoinTypes] = useState(["all"]);
+  const [selectedMemberClassTypes, setSelectedMemberClassTypes] = useState(["ALL"]);
+  const [selectedMemberTypes, setSelectedMemberTypes] = useState(["ALL"]);
+  const [selectedStatusTypes, setSelectedStatusTypes] = useState(["ALL"]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [requestBody, setRequestBody] = useState({
+    cust_cls_cd: [],
+    join_typ_cd: [],
+    cust_stat_cd: [],
+  });
+
+  // id를 label로 변환하는 함수
+  const getLabel = (id: string, types: { id: string, label: string }[]) => {
+    const type = types.find(t => t.id === id);
+    return type ? type.label : id;
+  };
 
   const handleSearch = useCallback(async () => {
+    // 각 상태를 확인하고, 아무것도 선택되지 않았으면 "ALL"을 기본으로 설정
+    setSelectedMemberClassTypes((prev) => (prev.length === 0 ? ["ALL"] : prev));
+    setSelectedMemberTypes((prev) => (prev.length === 0 ? ["ALL"] : prev));
+    setSelectedStatusTypes((prev) => (prev.length === 0 ? ["ALL"] : prev));
+
+    // requestBody도 업데이트
+    setRequestBody((prev) => ({
+      ...prev,
+      cust_cls_cd: selectedMemberClassTypes.length === 0 ? [] : prev.cust_cls_cd,
+      join_typ_cd: selectedMemberTypes.length === 0 ? [] : prev.join_typ_cd,
+      cust_stat_cd: selectedStatusTypes.length === 0 ? [] : prev.cust_stat_cd,
+    }));
+
     setIsLoading(true);
     try {
       const queryParams = new URLSearchParams({
@@ -85,9 +107,7 @@ export default function UserInfoPage() {
         cust_nm: searchFields.cust_nm,
         eml: searchFields.eml,
         hp: searchFields.hp,
-        cust_cls_cd: selectedMemberTypes.includes("all") ? [] : selectedMemberTypes,
-        cust_stat_cd: selectedStatusTypes.includes("all") ? [] : selectedStatusTypes,
-        jon_typ_cd: selectedJoinTypes.includes("all") ? [] : selectedJoinTypes,
+        ...requestBody,
       };
 
       console.log("요청 데이터:", { url: `/api/user/info?${queryParams.toString()}`, body });
@@ -96,7 +116,7 @@ export default function UserInfoPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}` // 토큰 추가
+          "Authorization": `Bearer ${accessToken}`
         },
         body: JSON.stringify(body),
       });
@@ -110,88 +130,77 @@ export default function UserInfoPage() {
       const data = await response.json();
       console.log("응답 데이터:", data);
 
-      // 여기를 수정합니다
       setUsers(data.data);
       setTotalPages(Math.ceil(data.total / ITEMS_PER_PAGE));
     } catch (error) {
       console.error("사용자 정보 검색 중 오류 발생:", error);
-      // 사용자에게 오류 메시지 표시
       setErrorMessage("사용자 정보를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, searchFields, selectedMemberTypes, selectedStatusTypes, selectedJoinTypes]);
+  }, [currentPage, searchFields, requestBody, accessToken, selectedMemberClassTypes, selectedMemberTypes, selectedStatusTypes]);
 
   const handleMemberClassTypeChange = (type: string) => {
     setSelectedMemberClassTypes((prev) =>
-      type === "all"
-        ? ["all"]
+      type === "ALL"
+        ? ["ALL"]
         : prev.includes(type)
-        ? prev.filter((t) => t !== type && t !== "all")
-        : [...prev.filter((t) => t !== "all"), type]
+        ? prev.filter((t) => t !== type && t !== "ALL")
+        : [...prev.filter((t) => t !== "ALL"), type]
     );
+    setRequestBody(prev => ({
+      ...prev,
+      cust_cls_cd: type === "ALL" 
+        ? [] 
+        : prev.cust_cls_cd.includes(type)
+          ? prev.cust_cls_cd.filter(t => t !== type)
+          : [...prev.cust_cls_cd.filter(t => t !== "ALL"), type],
+    }));
   };
+
   const handleNameChange = (field: keyof typeof searchFields) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFields(prev => ({ ...prev, [field]: e.target.value }));
   };
   
-  const handleKeyPress = useCallback(
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === "Enter") {
-        handleSearch();
-      }
-    },
-    [handleSearch]
-  );
   const handleMemberTypeChange = (type: string) => {
     setSelectedMemberTypes((prev) =>
-      type === "all"
-        ? ["all"]
+      type === "ALL"
+        ? ["ALL"]
         : prev.includes(type)
-        ? prev.filter((t) => t !== type && t !== "all")
-        : [...prev.filter((t) => t !== "all"), type]
+        ? prev.filter((t) => t !== type && t !== "ALL")
+        : [...prev.filter((t) => t !== "ALL"), type]
     );
+    setRequestBody(prev => ({
+      ...prev,
+      join_typ_cd: type === "ALL" 
+        ? [] 
+        : prev.join_typ_cd.includes(type)
+          ? prev.join_typ_cd.filter(t => t !== type)
+          : [...prev.join_typ_cd.filter(t => t !== "ALL"), type],
+    }));
   };
 
   const handleStatusTypeChange = (type: string) => {
     setSelectedStatusTypes((prev) =>
-      type === "all"
-        ? ["all"]
+      type === "ALL"
+        ? ["ALL"]
         : prev.includes(type)
-        ? prev.filter((t) => t !== type && t !== "all")
-        : [...prev.filter((t) => t !== "all"), type]
+        ? prev.filter((t) => t !== type && t !== "ALL")
+        : [...prev.filter((t) => t !== "ALL"), type]
     );
+    setRequestBody(prev => ({
+      ...prev,
+      cust_stat_cd: type === "ALL" 
+        ? [] 
+        : prev.cust_stat_cd.includes(type)
+          ? prev.cust_stat_cd.filter(t => t !== type)
+          : [...prev.cust_stat_cd.filter(t => t !== "ALL"), type],
+    }));
   };
-
 
   useEffect(() => {
     handleSearch();
-  }, [handleSearch]);
-
-  const renderPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPageButtons = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
-    const endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
-
-    if (endPage - startPage + 1 < maxPageButtons) {
-      startPage = Math.max(1, endPage - maxPageButtons + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(
-        <Button
-          key={i}
-          onClick={() => setCurrentPage(i)}
-          variant={currentPage === i ? "secondary" : "outline"}
-          size="sm"
-        >
-          {i}
-        </Button>
-      );
-    }
-    return pageNumbers;
-  };
+  }, []);
 
   if (!isAuthenticated) {
     return <div>Please log in to view user information.</div>;
@@ -247,79 +256,78 @@ export default function UserInfoPage() {
           </div>
         </div>
         <div className="flex gap-4">
-        <Input
-            placeholder="이름으로 검색"
+          <Input
+            placeholder="이메일로 검색"
             value={searchFields.eml}
             onChange={handleNameChange('eml')}
-            onKeyDown={handleKeyPress}
             className="md:w-1/4"
           />
           <Input
             placeholder="이름으로 검색"
             value={searchFields.cust_nm}
             onChange={handleNameChange('cust_nm')}
-            onKeyDown={handleKeyPress}
             className="md:w-1/4"
           />
           <Input
-            placeholder="폰으로 검색"
+            placeholder="전화번호로 검색"
             value={searchFields.hp}
             onChange={handleNameChange('hp')}
-            onKeyDown={handleKeyPress}
             className="md:w-1/4"
           />
-          <Button onClick={handleSearch}>
-            <Search className="md:w-1/8" /> 검색
+          <Button onClick={handleSearch} className="md:w-1/8">
+            <Search className="mr-2 h-4 w-4" /> 검색
           </Button>
         </div>
       </div>
 
       {errorMessage && (
-        <div className="error-message">
-          {errorMessage}
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <span className="block sm:inline">{errorMessage}</span>
         </div>
       )}
 
       {isLoading ? (
-        <div className="text-center">Loading...</div>
+        <div className="text-center">로딩 중...</div>
       ) : (
-        <div className="overflow-x-auto w-full flex justify-center">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>이름</TableHead>
-                <TableHead>이메일</TableHead>
-                <TableHead>회원 종류</TableHead>
-                <TableHead>상태</TableHead>
-                <TableHead>가입일자</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.isArray(users) && users.length > 0 ? (
-                users.map((user: UserInfo) => (
-                  <TableRow key={user.cust_no}>
-                    <TableCell>{user.cust_no}</TableCell>
-                    <TableCell>{user.cust_nm}</TableCell>
-                    <TableCell>{user.hp || '-'}</TableCell>
-                    <TableCell>{user.cust_cls_cd}</TableCell>
-                    <TableCell>{user.cust_stat_cd}</TableCell>
-                    <TableCell>
-                      {new Date(user.join_ymd).toLocaleDateString()}
+        <div className="w-full">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>이름</TableHead>
+                  <TableHead>전화번호</TableHead>
+                  <TableHead>이메일</TableHead>
+                  <TableHead>회원 종류</TableHead>
+                  <TableHead>상태</TableHead>
+                  <TableHead>가입일자</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Array.isArray(users) && users.length > 0 ? (
+                  users.map((user: UserInfo) => (
+                    <TableRow key={user.cust_no}>
+                      <TableCell>{user.cust_no}</TableCell>
+                      <TableCell>{user.cust_nm}</TableCell>
+                      <TableCell>{user.hp || '-'}</TableCell>
+                      <TableCell>{user.eml || '-'}</TableCell>
+                      <TableCell>{getLabel(user.cust_cls_cd, memberClassTypes)}</TableCell>
+                      <TableCell>{getLabel(user.cust_stat_cd, statusTypes)}</TableCell>
+                      <TableCell>{new Date(user.join_ymd).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center">
+                      사용자 정보가 없습니다.
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    사용자 정보가 없습니다.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
-          <div className="mt-8 flex justify-center items-center space-x-2">
+          <div className="mt-4 flex justify-center items-center space-x-2">
             <Button
               onClick={() => setCurrentPage(1)}
               disabled={currentPage === 1}
@@ -327,7 +335,6 @@ export default function UserInfoPage() {
               variant="outline"
             >
               <ChevronsLeft className="h-4 w-4" />
-              처음
             </Button>
             <Button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -336,20 +343,18 @@ export default function UserInfoPage() {
               variant="outline"
             >
               <ChevronLeft className="h-4 w-4" />
-              이전
             </Button>
 
-            {renderPageNumbers()}
+            <span className="mx-2">
+              {currentPage} / {totalPages}
+            </span>
 
             <Button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
               size="sm"
               variant="outline"
             >
-              다음
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
@@ -358,7 +363,6 @@ export default function UserInfoPage() {
               size="sm"
               variant="outline"
             >
-              마지막
               <ChevronsRight className="h-4 w-4" />
             </Button>
           </div>

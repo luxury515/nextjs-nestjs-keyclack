@@ -55,6 +55,7 @@ export class InfoService {
     query.select([
       'tcus_cust_m.cust_no',
       'tcus_cust_m.cust_nm',
+      'tcus_cust_m.eml',
       'tcus_cust_m.cust_cls_cd',
       'tcus_cust_m.cust_stat_cd',
       'tcus_cust_m.hp',
