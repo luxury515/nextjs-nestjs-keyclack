@@ -6,7 +6,7 @@ import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { BlogModule } from './blog/blog.module';
 import { AgreeModule } from 'user/agree/agree.module';
-
+import { InfoModule } from './user/info/info.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -28,6 +28,7 @@ import { AgreeModule } from 'user/agree/agree.module';
     AuthModule,
     BlogModule,
     AgreeModule,
+    InfoModule,
   ],
   controllers: [AuthController],
 })
