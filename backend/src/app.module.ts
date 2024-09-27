@@ -21,6 +21,8 @@ import { InfoModule } from './user/info/info.module';
         database: configService.get('DB_NAME'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: false,
+        logging: true,
+        logger: 'advanced-console',
       }),
       inject: [ConfigService],
     }),

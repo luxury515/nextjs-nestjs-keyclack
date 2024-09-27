@@ -12,7 +12,8 @@ export class AgreeService {
 
   async search(cust_nm: string, policyCode: string, skip: number, take: number): Promise<[Agree[], number]> {
     const query = this.agreeRepository.createQueryBuilder('agree')
-      .where('agree.cust_nm LIKE :cust_nm', { cust_nm: `%${cust_nm}%` });
+      .where('agree.cust_nm LIKE :cust_nm', { cust_nm: `%${cust_nm}%` })
+      .andWhere('agree.tmcnd_plcy_cls_cd IS NOT NULL');
 
     if (policyCode) {
       query.andWhere('agree.tmcnd_plcy_cls_cd = :policyCode', { policyCode });

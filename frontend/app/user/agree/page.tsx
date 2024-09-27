@@ -186,7 +186,7 @@ export default function AgreePage() {
                   <TableCell>
                     <Switch
                       checked={agree.agre_yn === 'Y'}
-                      onChange={() => handleToggle(agree.cust_nm, agree.tmcnd_plcy_cls_cd, agree.agre_yn)}
+                      onCheckedChange={() => handleToggle(agree.cust_nm, agree.tmcnd_plcy_cls_cd, agree.agre_yn)}
                       className={`${
                         agree.agre_yn === 'Y' ? 'bg-green-500' : 'bg-red-500'
                       } relative inline-flex h-6 w-11 items-center rounded-full`}

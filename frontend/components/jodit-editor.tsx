@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, forwardRef, useCallback, useEffect } from "react";
+import { useState, forwardRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import type { Jodit } from "jodit-react";
 
