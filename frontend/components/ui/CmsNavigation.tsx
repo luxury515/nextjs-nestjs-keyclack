@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, ChevronRight, Menu, X, LayoutDashboard, FileText, Users, Settings, LogOut } from "lucide-react"
+import { ChevronDown, ChevronRight, Menu, X, LayoutDashboard, FileText, Users, Settings, LogOut , Siren, Rss } from "lucide-react"
 import { useAuth } from '@/app/contexts/AuthContext'
 import { useNavigation } from '@/app/contexts/NavigationContext'
 import { useRouter } from 'next/navigation';
@@ -29,12 +29,13 @@ const menuData: {
     { name: '미디어 라이브러리', icon: <FileText className="h-4 w-4" />, subItems: ['이미지 업로드', '비디오 관리', '파일 정리'] },
   ],
   users: [
-    { name: '정책허용관리', icon: <Users className="h-4 w-4" />, subItems: [{ name: '정책허용관리', link: '/user/agree' }] },
+    { name: '정책관리', icon: <Siren className="h-4 w-4" />, subItems: [{ name: '정책허용관리', link: '/user/agree' }] },
+    { name: '회원관리', icon: <Users className="h-4 w-4" />, subItems: [{ name: '회원정보관리', link: '/user/info' }] },
   ],
   Blog: [
     {
       name: '블로그 관리',
-      icon: <Settings className="h-4 w-4" />,
+      icon: <Rss className="h-4 w-4" />,
       subItems: [
         { name: '블로그 목록', link: '/blog' },
         { name: '블로그 작성', link: '/blog/write' }

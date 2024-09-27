@@ -85,6 +85,7 @@ export default function AgreePage() {
   }, [handleSearch]);
 
   const handleToggle = async (cust_nm: string, tmcnd_plcy_cls_cd: string, currentStatus: string) => {
+    alert(cust_nm + " " + tmcnd_plcy_cls_cd + " " + currentStatus);
     const newStatus = currentStatus === 'Y' ? 'N' : 'Y';
     try {
       await fetch('/api/user/agree', {
@@ -134,7 +135,7 @@ export default function AgreePage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 w-full">
       <h1 className="text-2xl font-bold mb-4">사용자 정보 수집 동의 관리</h1>
       
       <div className="flex flex-col md:flex-row gap-4 mb-4">
@@ -143,10 +144,10 @@ export default function AgreePage() {
           value={searchName}
           onChange={handleNameChange}
           onKeyDown={handleKeyPress} // 수정된 부분
-          className="md:w-1/3"
+          className="md:w-1/4"
         />
         <Select value={selectedPolicy} onValueChange={handlePolicyChange}>
-          <SelectTrigger className="md:w-1/3">
+          <SelectTrigger className="md:w-1/4">
             <SelectValue placeholder="선택" />
           </SelectTrigger>
           <SelectContent>
@@ -157,7 +158,7 @@ export default function AgreePage() {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={handleSearch} className="md:w-1/3">
+        <Button onClick={handleSearch} className="md:w-1/8">
           <Search className="mr-2 h-4 w-4" /> 검색
         </Button>
       </div>
@@ -165,11 +166,12 @@ export default function AgreePage() {
       {isLoading ? (
         <div className="text-center">Loading...</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>사용자 ID</TableHead>
+                <TableHead>정책</TableHead>
                 <TableHead>이름</TableHead>
                 <TableHead>이메일</TableHead>
                 <TableHead>상태</TableHead>
@@ -181,6 +183,7 @@ export default function AgreePage() {
               {agreements.map((agree: Agree) => (
                 <TableRow key={agree.cust_id}>
                   <TableCell>{agree.cust_id}</TableCell>
+                  <TableCell>{agree.tmcnd_plcy_cls_cd}</TableCell>
                   <TableCell>{agree.cust_nm}</TableCell>
                   <TableCell>{agree.eml}</TableCell>
                   <TableCell>

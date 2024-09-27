@@ -6,7 +6,13 @@ export class TcusCustM {
   cust_no: string;
 
   @Column()
+  cust_id: string;
+
+  @Column()
   cust_nm: string;
+
+  @Column()
+  eml: string;
 
   @Column()
   cust_cls_cd: string;
@@ -16,4 +22,10 @@ export class TcusCustM {
 
   @Column()
   hp: string;
+
+  @Column()
+  join_typ_cd: string;
+
+  @Column({ type: 'date', nullable: true })
+  join_ymd: Date | null;
 }

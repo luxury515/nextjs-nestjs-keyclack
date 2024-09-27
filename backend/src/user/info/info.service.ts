@@ -10,34 +10,59 @@ export class InfoService {
     private tcusCustMRepository: Repository<TcusCustM>,
   ) {}
 
-  async findAll(
-    cust_no?: string,
-    cust_nm?: string,
-    cust_cls_cd?: string,
-    cust_stat_cd?: string,
-    hp?: string,
+  async getUsers({
     page = 1,
     limit = 10,
-  ): Promise<{ data: TcusCustM[]; total: number }> {
+    cust_nm,
+    eml,
+    hp,
+    cust_cls_cd_array = [],
+    jon_typ_cd_array = [],
+    cust_stat_cd_array = [],
+  }: {
+    page?: number;
+    limit?: number;
+    cust_no?: string;
+    cust_id?: string;
+    cust_nm?: string;
+    eml?: string;
+    hp?: string;
+    cust_cls_cd_array?: string[];
+    jon_typ_cd_array?: string[];
+    cust_stat_cd_array?: string[];
+  }): Promise<{ data: TcusCustM[]; total: number }> {
     const query = this.tcusCustMRepository.createQueryBuilder('tcus_cust_m');
 
-    if (cust_no) {
-      query.andWhere('tcus_cust_m.cust_no = :cust_no', { cust_no });
-    }
-    if (cust_nm) {
-      query.andWhere('tcus_cust_m.cust_nm LIKE :cust_nm', { cust_nm: `%${cust_nm}%` });
-    }
-    if (cust_cls_cd) {
-      query.andWhere('tcus_cust_m.cust_cls_cd = :cust_cls_cd', { cust_cls_cd });
-    }
-    if (cust_stat_cd) {
-      query.andWhere('tcus_cust_m.cust_stat_cd = :cust_stat_cd', { cust_stat_cd });
+    if (eml) {
+      query.andWhere('tcus_cust_m.email LIKE :email', { email: `%${eml}%` });
     }
     if (hp) {
       query.andWhere('tcus_cust_m.hp LIKE :hp', { hp: `%${hp}%` });
     }
+    if (cust_nm) {
+      query.andWhere('tcus_cust_m.cust_nm LIKE :cust_nm', { cust_nm: `%${cust_nm}%` });
+    }
+    if (cust_cls_cd_array.length > 0) {
+      query.andWhere('tcus_cust_m.cust_cls_cd IN (:...cust_cls_cd_array)', { cust_cls_cd_array });
+    }
+    if (cust_stat_cd_array.length > 0) {
+      query.andWhere('tcus_cust_m.cust_stat_cd IN (:...cust_stat_cd_array)', { cust_stat_cd_array });
+    }
+    if (jon_typ_cd_array.length > 0) {
+      query.andWhere('tcus_cust_m.jon_typ_cd IN (:...jon_typ_cd_array)', { jon_typ_cd_array });
+    }
 
-    query.select(['tcus_cust_m.cust_no', 'tcus_cust_m.cust_nm', 'tcus_cust_m.cust_cls_cd', 'tcus_cust_m.cust_stat_cd', 'tcus_cust_m.hp']);
+    query.select([
+      'tcus_cust_m.cust_no',
+      'tcus_cust_m.cust_nm',
+      'tcus_cust_m.cust_cls_cd',
+      'tcus_cust_m.cust_stat_cd',
+      'tcus_cust_m.hp',
+      'tcus_cust_m.join_typ_cd',
+      'tcus_cust_m.join_ymd'
+    ]);
+
+    console.log('Generated SQL:', query.getQuery());
 
     const total = await query.getCount();
 
@@ -45,6 +70,16 @@ export class InfoService {
 
     const data = await query.getMany();
 
-    return { data, total };
+    const formattedData = data.map(item => ({
+      ...item,
+      join_ymd: new Date(item.join_ymd)
+    }));
+
+    console.log('Retrieved data:', formattedData);
+
+    return {
+      data: formattedData,
+      total
+    };
   }
 }

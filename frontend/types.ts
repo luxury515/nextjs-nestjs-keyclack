@@ -10,3 +10,14 @@ export interface Agree {
   tmcnd_plcy_cls_cd_nm: string;
   
 }
+export interface UserInfo {
+  cust_no: string;
+  cust_id: string;
+  cust_nm: string;
+  eml: string;
+  hp: string;
+  join_ymd: string;
+  join_typ_cd: string;
+  cust_cls_cd: string;
+  cust_stat_cd: string;
+}

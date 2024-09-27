@@ -14,6 +14,8 @@ export class AgreeController {
     @Query('page') page: number = 1
   ): Promise<{ data: Agree[]; total: number }> {
     const { cust_nm, tmcnd_plcy_cls_cd } = body;
+    console.log('search----->{}',cust_nm);
+    console.log('search----->{}',tmcnd_plcy_cls_cd);
     const policyCode = tmcnd_plcy_cls_cd === 'ALL' ? '' : tmcnd_plcy_cls_cd;
     
     const skip = (page - 1) * pageSize;

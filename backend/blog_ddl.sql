@@ -27,3 +27,50 @@ CREATE TABLE dfp.tcus_bltn_m (
 	del_yn varchar(1) DEFAULT 'N'::character varying NULL,
 	CONSTRAINT tcus_bltn_m_pk PRIMARY KEY (bltn_no)
 );
+
+-- dfp.tcus_cust_m definition
+
+-- Drop table
+
+-- DROP TABLE dfp.tcus_cust_m;
+
+CREATE TABLE dfp.tcus_cust_m (
+	cust_no varchar(20) DEFAULT nextval('tcsp_cust_m_seq'::regclass) NOT NULL,
+	cust_id varchar(100) NOT NULL,
+	sendbrd_id varchar(100) NULL,
+	cust_nm varchar(100) NOT NULL,
+	cust_eng_nm varchar(100) NULL,
+	cust_cls_cd varchar(20) NOT NULL,
+	cust_stat_cd varchar(20) NOT NULL,
+	cust_auths varchar(200) NULL,
+	ntn_cd varchar(3) NULL,
+	gndr_cls_cd varchar(20) NULL,
+	brdt varchar(8) NULL,
+	hp_ntn_dial varchar(20) NULL,
+	hp varchar(20) NULL,
+	eml varchar(100) NOT NULL,
+	join_typ_cd varchar(20) NOT NULL,
+	join_ymd date NOT NULL,
+	aply_ymd date NULL,
+	drmt_schd_ymd date NULL,
+	drmt_ymd date NULL,
+	spsn_ymd date NULL,
+	whdwl_ymd date NULL,
+	cnpt_cd varchar(10) NULL,
+	dept_nm varchar(100) NULL,
+	jbgd_nm varchar(100) NULL,
+	wrc_ntn_dial varchar(20) NULL,
+	wrc_telno varchar(11) NULL,
+	faxno_ntn_dial varchar(20) NULL,
+	faxno varchar(20) NULL,
+	use_yn varchar(1) NULL,
+	inpt_usr_id varchar(100) NOT NULL,
+	inpt_dtm timestamp NOT NULL,
+	updt_usr_id varchar(100) NOT NULL,
+	updt_dtm timestamp NOT NULL,
+	tid varchar(255) NULL,
+	CONSTRAINT cust_id_unique UNIQUE (cust_id),
+	CONSTRAINT eml_unique UNIQUE (eml),
+	CONSTRAINT hp_unique UNIQUE (hp),
+	CONSTRAINT tcus_cust_m_pk2 PRIMARY KEY (cust_no)
+);
